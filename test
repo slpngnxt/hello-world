@@ -1,0 +1,215 @@
+//random L1만
+#include <cstdio>
+#include <stdlib.h>
+#include <time.h>
+
+
+int main() {
+	int r1, r2;
+	int L1[5] = { 0, };
+	int ram[500] = { 0, };
+	int hard[5000];
+	int index[2] = { 0, 0 };
+	int victim1;
+
+	int num1, num2;
+	int total = 0, hit = 0;
+	double hit_rate;
+	double r1_access_time, r2_access_time;
+	double hit_avrg = 0, acc_avrg = 0;
+
+	clock_t start, end;
+	FILE *hitRate, *accTime;
+	hitRate = fopen("hitRate.txt", "w");
+	accTime = fopen("accTime.txt", "w");
+
+	for (int i = 0; i < 5000; i++) {
+		hard[i] = i + 1;
+	}
+
+	srand((unsigned)time(0));
+
+
+	for (int i = 0; i < 8000; i++) { //반복횟수 설정
+
+		r1 = -1;
+		r2 = -1;
+
+		num1 = rand() % 5000 + 1;
+		num2 = rand() % 5000 + 1;
+
+		printf("\t\t<덧셈 시작!>\n");
+
+		//1) num1 캐싱
+		//L1
+		printf("[첫번째 숫자 찾기]\n");
+		start = clock();
+		total++;
+		printf("캐시메모리 L1에서 %d을(를) 찾습니다.\n", num1);
+		for (int i = 0; i < 5; i++) {
+			if (num1 == L1[i]) {
+				printf("L1에서 %d 히트 성공!\n", num1);
+				r1 = L1[i];
+				hit++;
+			}
+		}
+
+		//실패시 램에서 찾음
+
+		if (r1 == -1) {
+			printf("L3 히트 실패, ram에서 찾습니다!\n");
+			for (int i = 0; i < 500; i++) {
+				if (num1 == ram[i]) {
+					printf("ram에서 %d 찾음!\n", num1);
+					r1 = ram[i];
+
+					// L1에 올리고, 이미 다 찼으면 랜덤하게 선택해서 L2 > L3로 옮김. 
+					if (index[0] >= 5) {
+						victim1 = rand() % 5;
+						printf("L1이 다 찼으므로, 랜덤하게 선택된 L1[%d] %d를 삭제합니다.\n", victim1, L1[victim1]);
+					}
+					L1[index[0] % 5] = ram[i];
+					index[0]++;
+				}
+			}
+		}
+
+		//실패시 하드에서 찾음
+
+		if (r1 == -1) {
+			printf("ram에 존재하지 않습니다. 하드디스크에서 찾습니다!\n");
+			for (int i = 0; i < 5000; i++) {
+				if (num1 == hard[i]) {
+					printf("하드디스크에서 %d 발견!\n", num1);
+					r1 = hard[i];
+
+					// 램에 올림
+					if (index[1] >= 500) {
+						printf("ram이 다 찼으므로, 랜덤하게 선택된 Ram[%d] %d를 삭제합니다.\n", victim1, ram[victim1]);
+						for (int j = victim1; j < 499; j++) {
+							ram[j] = ram[j + 1];
+						}
+						index[1]--;
+					}
+					ram[(index[1] % 500)] = hard[i];
+					index[1]++;
+
+					// L1에 올리고, 이미 다 찼으면 랜덤하게 선택해서 L2 > L3로 옮김. 
+					if (index[0] >= 5) {
+						victim1 = rand() % 5;
+						printf("L1이 다 찼으므로, 랜덤하게 선택된 L1[%d] %d를 삭제합니다.\n", victim1, L1[victim1]);
+					}
+					L1[index[0] % 5] = hard[i];
+					index[0]++;
+				}
+			}
+		}
+		end = clock();
+		r1_access_time = (double)(end - start);
+
+		// 2) num2 캐싱
+		//L1
+		printf("\n[두번째 숫자 찾기] \n");
+		start = clock();
+		total++;
+		printf("캐시메모리 L1에서 %d을(를) 찾습니다.\n", num2);
+		for (int i = 0; i < 5; i++) {
+			if (num2 == L1[i]) {
+				printf("L1에서 %d 히트 성공!\n", num2);
+				r2 = L1[i];
+				hit++;
+			}
+		}
+
+
+		//실패시 램에서 찾음
+
+		if (r2 == -1) {
+			printf("L3 히트 실패, ram에서 찾습니다!\n");
+			for (int i = 0; i < 500; i++) {
+				if (num2 == ram[i]) {
+					printf("ram에서 %d 찾음!\n", num2);
+					r2 = ram[i];
+
+					// L1에 올리고, 이미 다 찼으면 랜덤하게 선택해서 L2 > L3로 옮김. 
+					if (index[0] >= 5) {
+						victim1 = rand() % 5;
+						printf("L1이 다 찼으므로, 랜덤하게 선택된 L1[%d] %d를 삭제합니다.\n", victim1, L1[victim1]);
+					}
+					L1[index[0] % 5] = ram[i];
+					index[0]++;
+				}
+			}
+		}
+
+		//실패시 하드에서 찾음
+
+		if (r2 == -1) {
+			printf("ram에 존재하지 않습니다. 하드디스크에서 찾습니다!\n");
+			for (int i = 0; i < 5000; i++) {
+				if (num2 == hard[i]) {
+					printf("하드디스크에서 %d 발견!\n", num2);
+					r2 = hard[i];
+
+					//램에 올림
+					if (index[1] >= 500) {
+						printf("ram이 다 찼으므로, 랜덤하게 선택된 Ram[%d] %d를 삭제합니다.\n", victim1, ram[victim1]);
+						for (int j = victim1; j < 499; j++) {
+							ram[j] = ram[j + 1];
+						}
+						index[1]--;
+					}
+					ram[(index[1] % 500)] = hard[i];
+					index[1]++;
+
+
+					// L1에 올리고, 이미 다 찼으면 랜덤하게 선택해서 L2 > L3로 옮김. 
+					if (index[0] >= 5) {
+						victim1 = rand() % 5;
+						printf("L1이 다 찼으므로, 랜덤하게 선택된 L1[%d] %d를 삭제합니다.\n", victim1, L1[victim1]);
+					}
+					L1[index[0] % 5] = hard[i];
+					index[0]++;
+				}
+			}
+		}
+		end = clock();
+		r2_access_time = (double)(end - start);
+
+		//printf("-------------------------------------------------------\n");
+		//printf("결과 : %d\n", r1 + r2);
+		//printf("total 메모리 접근 횟수 : %d\n", total);
+		//printf("적중 : %d\n", hit);
+		hit_rate = (double)hit / total;
+		//printf("적중률 : %f\n", hit_rate);
+		//printf("첫번째 숫자 접근 시간 : %lf\n", r1_access_time / CLOCKS_PER_SEC);
+		//printf("두번째 숫자 접근 시간 : %lf\n", r2_access_time / CLOCKS_PER_SEC);
+		//fprintf(hitRate, "%f\n", hit_rate);
+		//fprintf(accTime, "%f\n", (r1_access_time + r2_access_time) / (2.0 * CLOCKS_PER_SEC));
+		hit_avrg += hit_rate;
+		acc_avrg += (r1_access_time + r2_access_time) / (2.0 * CLOCKS_PER_SEC);
+
+		/*
+		// 과정
+		printf("-------------------------------------------------------\n");
+		printf("~~~L1~~~\n");
+		for (int i = 0; i < 5; i++) {
+			printf("%d ", L1[i]);
+		}
+
+		printf("\n~~~메모리~~~\n");
+		for (int i = 0; i < 500; i++) {
+			printf("%d ", ram[i]);
+		}
+		printf("\n\n");
+		*/
+	}
+
+	printf("평균 히트율 : %f\n", hit_avrg / (double)8000);
+	printf("평균 접속시간 : %f\n", acc_avrg / (double)8000);
+	printf("\a");
+
+	fclose(hitRate);
+	fclose(accTime);
+	return 0;
+}
