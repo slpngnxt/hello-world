@@ -30,7 +30,7 @@ int main() {
 	srand((unsigned)time(0));
 
 
-	for (int i = 0; i < 8000; i++) { //반복횟수 설정
+	for (int i = 0; i < 3000; i++) { //반복횟수 설정
 
 		r1 = -1;
 		r2 = -1;
@@ -177,20 +177,20 @@ int main() {
 		r2_access_time = (double)(end - start);
 
 		//printf("-------------------------------------------------------\n");
-		//printf("결과 : %d\n", r1 + r2);
-		//printf("total 메모리 접근 횟수 : %d\n", total);
-		//printf("적중 : %d\n", hit);
+		printf("결과 : %d\n", r1 + r2);
+		printf("total 메모리 접근 횟수 : %d\n", total);
+		printf("적중 : %d\n", hit);
 		hit_rate = (double)hit / total;
-		//printf("적중률 : %f\n", hit_rate);
-		//printf("첫번째 숫자 접근 시간 : %lf\n", r1_access_time / CLOCKS_PER_SEC);
-		//printf("두번째 숫자 접근 시간 : %lf\n", r2_access_time / CLOCKS_PER_SEC);
+		printf("적중률 : %f\n", hit_rate);
+		printf("첫번째 숫자 접근 시간 : %lf\n", r1_access_time / CLOCKS_PER_SEC);
+		printf("두번째 숫자 접근 시간 : %lf\n", r2_access_time / CLOCKS_PER_SEC);
 		//fprintf(hitRate, "%f\n", hit_rate);
 		//fprintf(accTime, "%f\n", (r1_access_time + r2_access_time) / (2.0 * CLOCKS_PER_SEC));
 		hit_avrg += hit_rate;
 		acc_avrg += (r1_access_time + r2_access_time) / (2.0 * CLOCKS_PER_SEC);
 
-		/*
 		// 과정
+		/*
 		printf("-------------------------------------------------------\n");
 		printf("~~~L1~~~\n");
 		for (int i = 0; i < 5; i++) {
@@ -205,11 +205,11 @@ int main() {
 		*/
 	}
 
-	printf("평균 히트율 : %f\n", hit_avrg / (double)8000);
-	printf("평균 접속시간 : %f\n", acc_avrg / (double)8000);
+	printf("평균 히트율 : %f\n", hit_avrg / (double)3000);
+	printf("평균 접속시간 : %f\n", acc_avrg / (double)3000);
 	printf("\a");
 
-	fclose(hitRate);
-	fclose(accTime);
+	//fclose(hitRate);
+	//fclose(accTime);
 	return 0;
 }
